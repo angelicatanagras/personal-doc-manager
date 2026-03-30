@@ -39,12 +39,6 @@ jobs:
           npm install -g yarn
           yarn install
 
-      - name: Install Frontend Dependencies and Build
-        working-directory: ./frontend
-        run: |
-          sudo rm -rf ./dist
-          yarn install
-          yarn run build
 
       - name: Run Backend Tests
         env:
