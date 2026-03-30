@@ -4,6 +4,19 @@ A web-based document manager where users can upload, organise, and track persona
 
 **Live:** http://13.211.74.4
 
+| Page | URL |
+|---|---|
+| Login | http://13.211.74.4/login |
+| Register | http://13.211.74.4/registration |
+| Admin Login | http://13.211.74.4/admin/login |
+
+### Test Credentials
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@admin.com | admin |
+| User | angel@angel.com | angel |
+
 ---
 
 ## Features
