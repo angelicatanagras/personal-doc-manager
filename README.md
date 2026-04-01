@@ -2,13 +2,13 @@
 
 A web-based document manager where users can upload, organise, and track personal files. Built as a full-stack app with a React frontend, Node/Express backend, and MongoDB Atlas for storage.
 
-**Live:** http://13.211.74.4
+**Live:** http://15.135.196.187:3000
 
 | Page | URL |
 |---|---|
-| Login | http://13.211.74.4/login |
-| Register | http://13.211.74.4/registration |
-| Admin Login | http://13.211.74.4/admin/login |
+| Login | http://15.135.196.187:3000/login |
+| Register | http://15.135.196.187:3000/registration |
+| Admin Login | http://15.135.196.187:3000/admin/login |
 
 ### Test Credentials
 
@@ -103,9 +103,9 @@ Secrets stored in GitHub → Settings → Secrets: `MONGO_URI`, `JWT_SECRET`, `P
 
 ## Deployment
 
-Live URL: `http://13.211.74.4`
+Live URL: `http://15.135.196.187:3000`
 
-Hosted on AWS EC2 (Ubuntu 22.04). Backend on port 5001, frontend served through Nginx on port 80, process management via PM2.
+Hosted on AWS EC2 (Ubuntu 22.04). Frontend on port 3000, backend on port 5000, process management via PM2.
 
 ---
 
