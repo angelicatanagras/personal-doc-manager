@@ -1,4 +1,4 @@
-# CloudDoc — Personal Document Manager
+# CloudDoc Personal Document Manager
 
 A web-based document manager where users can upload, organise, and track personal files. Built as a full-stack app with a React frontend, Node/Express backend, and MongoDB Atlas for storage.
 
@@ -80,8 +80,8 @@ Tests cover auth, document CRUD, and admin endpoints (mocha + chai).
 
 GitHub Actions (`.github/workflows/ci.yml`) runs on every push:
 
-1. **Install dependencies** — backend via yarn
-2. **Run backend tests** — `npm test` (mocha)
+1. **Install dependencies** - backend via yarn
+2. **Run backend tests** - `npm test` (mocha)
 3. **Deploy to EC2** — restarts services via PM2
 
 Secrets stored in GitHub → Settings → Secrets: `MONGO_URI`, `JWT_SECRET`, `PROD`
@@ -118,8 +118,16 @@ feature/epic8-admin
 
 ---
 
+## Test Credentials
+
+| Role  | Email           | Password |
+| ----- | --------------- | -------- |
+| User  | angel@angel.com | angel    |
+| Admin | admin@admin.com | admin    |
+
+---
+
 ## Assessment
 
-**Unit:** IFN636 — Software Life Cycle Management
-**Assessment:** 1.2 — Full-Stack CRUD Application with DevOps Practices
-**University:** Queensland University of Technology (QUT)
+**Unit:** Software Life Cycle Management
+**Assessment:** Full-Stack CRUD Application with DevOps Practices

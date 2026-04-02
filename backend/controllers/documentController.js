@@ -72,11 +72,12 @@ const uploadDocument = async (req, res) => {
 // GET /api/documents
 const getDocuments = async (req, res) => {
   try {
-    const { search, fileType, sort } = req.query;
+    const { search, fileType, sort, folderId } = req.query;
     const query = { userId: req.user.id, deletedAt: null };
 
     if (search) query.name = { $regex: search, $options: 'i' };
     if (fileType) query.fileType = fileType;
+    if (folderId) query.folderId = folderId;
 
     let sortObj = { createdAt: -1 };
     if (sort === 'name') sortObj = { name: 1 };

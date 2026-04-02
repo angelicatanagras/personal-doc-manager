@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axiosInstance from '../axiosConfig';
 
 export default function EditModal({ doc, onClose, onUpdated }) {
@@ -6,8 +6,14 @@ export default function EditModal({ doc, onClose, onUpdated }) {
   const [expiryDate, setExpiryDate] = useState(
     doc.expiryDate ? new Date(doc.expiryDate).toISOString().split('T')[0] : ''
   );
+  const [folderId, setFolderId] = useState(doc.folderId?._id || doc.folderId || '');
+  const [folders, setFolders] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    axiosInstance.get('/api/folders').then(({ data }) => setFolders(data)).catch(() => {});
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,6 +22,7 @@ export default function EditModal({ doc, onClose, onUpdated }) {
       const { data } = await axiosInstance.put(`/api/documents/${doc._id}`, {
         name,
         expiryDate: expiryDate || null,
+        folderId: folderId || null,
       });
       onUpdated(data);
       onClose();
@@ -46,6 +53,19 @@ export default function EditModal({ doc, onClose, onUpdated }) {
               required
               className="w-full py-2 px-3 border border-[#E2E8F0] rounded-lg text-sm focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/10"
             />
+          </div>
+          <div>
+            <label className="block text-[13px] font-medium text-[#1E293B] mb-1.5">Folder <span className="text-[#94A3B8] font-normal">(optional)</span></label>
+            <select
+              value={folderId}
+              onChange={(e) => setFolderId(e.target.value)}
+              className="w-full py-2 px-3 border border-[#E2E8F0] rounded-lg text-sm focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/10"
+            >
+              <option value="">Uncategorised</option>
+              {folders.map((f) => (
+                <option key={f._id} value={f._id}>{f.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-[13px] font-medium text-[#1E293B] mb-1.5">Expiry date <span className="text-[#94A3B8] font-normal">(optional)</span></label>

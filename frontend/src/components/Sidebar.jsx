@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import axiosInstance from '../axiosConfig';
 
 const NAV = [
   {
@@ -21,9 +23,19 @@ const NAV = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = false, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [alertCount, setAlertCount] = useState(0);
+
+  useEffect(() => {
+    axiosInstance.get('/api/documents')
+      .then(({ data }) => {
+        const count = data.filter((d) => d.status === 'expiring' || d.status === 'expired').length;
+        setAlertCount(count);
+      })
+      .catch(() => {});
+  }, []);
 
   const storageUsed = user?.storageUsed ?? 0;
   const storageQuota = user?.storageQuota ?? 5368709120;
@@ -41,17 +53,38 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-[210px] min-w-[210px] bg-[#1E293B] flex flex-col h-screen">
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/50 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside className={`
+        fixed md:relative inset-y-0 left-0 z-30
+        w-[210px] min-w-[210px] bg-[#1E293B] flex flex-col h-screen
+        transform transition-transform duration-200 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-white/[0.06]">
-        <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center flex-shrink-0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
+      <div className="flex items-center justify-between px-4 py-5 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span className="text-[16px] font-bold text-[#F1F5F9] tracking-tight">CloudDoc</span>
         </div>
-        <span className="text-[16px] font-bold text-[#F1F5F9] tracking-tight">CloudDoc</span>
+        {onClose && (
+          <button onClick={onClose} className="md:hidden text-[#64748B] hover:text-[#94A3B8] transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        )}
       </div>
 
       {/* Nav */}
@@ -75,9 +108,9 @@ export default function Sidebar() {
               >
                 <span className="w-4 h-4 flex-shrink-0">{item.icon}</span>
                 <span className="flex-1">{item.text}</span>
-                {item.badge && (
-                  <span className="ml-auto bg-[#D97706] text-white text-[10px] font-bold rounded-full px-1.5 py-px">
-                    !
+                {item.badge && alertCount > 0 && (
+                  <span className="ml-auto bg-[#D97706] text-white text-[10px] font-bold rounded-full px-1.5 py-px min-w-[18px] text-center">
+                    {alertCount}
                   </span>
                 )}
               </NavLink>
@@ -115,7 +148,8 @@ export default function Sidebar() {
           </svg>
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 

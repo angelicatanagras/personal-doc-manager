@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
+const { getFolders, createFolder, updateFolder, deleteFolder, moveDocument } = require('../controllers/folderController');
 
-// Placeholder — Epic 4 (Folder Organisation)
-router.get('/', protect, (req, res) => res.json({ message: 'Folders route — coming soon' }));
+router.get('/', protect, getFolders);
+router.post('/', protect, createFolder);
+router.put('/:id', protect, updateFolder);
+router.delete('/:id', protect, deleteFolder);
+router.put('/:id/move-document', protect, moveDocument);
 
 module.exports = router;

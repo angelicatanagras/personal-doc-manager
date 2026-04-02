@@ -12,6 +12,7 @@ export default function Trash() {
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [permDelete, setPermDelete] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     axiosInstance.get('/api/documents/trash')
@@ -33,10 +34,13 @@ export default function Trash() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 flex-shrink-0">
+        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 gap-3 flex-shrink-0">
+          <button onClick={() => setSidebarOpen(true)} className="md:hidden -ml-1 mr-1 p-1 text-[#64748B]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <span className="text-[15px] font-bold text-[#1E293B]">Trash</span>
           <p className="ml-3 text-[13px] text-[#64748B]">Items are permanently deleted after 30 days.</p>
         </header>
@@ -52,15 +56,12 @@ export default function Trash() {
           ) : (
             <div className="flex flex-col gap-2">
               {docs.map((doc) => (
-                <div key={doc._id} className="bg-white border border-[#E2E8F0] rounded-lg px-4 py-3 flex items-center gap-4">
+                <div key={doc._id} className="bg-white border border-[#E2E8F0] rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-[#1E293B] truncate">{doc.name}</p>
-                    <p className="text-[11.5px] text-[#64748B]">{doc.fileType?.toUpperCase()} · {formatSize(doc.size)}</p>
+                    <p className="text-[11.5px] text-[#64748B]">{doc.fileType?.toUpperCase()} · {formatSize(doc.size)} · Deleted {new Date(doc.deletedAt).toLocaleDateString()}</p>
                   </div>
-                  <p className="text-[11px] text-[#94A3B8] flex-shrink-0">
-                    Deleted {new Date(doc.deletedAt).toLocaleDateString()}
-                  </p>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-shrink-0">
                     <button
                       onClick={() => handleRestore(doc)}
                       className="px-3 py-1.5 text-[12px] font-medium text-[#0F766E] border border-[#0F766E] rounded-md hover:bg-[#F0FDFA] transition-colors"

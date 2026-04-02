@@ -83,14 +83,14 @@ export default function AdminDashboard() {
             <p className="text-sm text-[#64748B] py-10 text-center">Loading...</p>
           ) : (
             <>
-              <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <StatCard label="Total Users" value={stats?.totalUsers ?? 0} />
                 <StatCard label="Active Users" value={stats?.activeUsers ?? 0} color="text-emerald-600" />
                 <StatCard label="Suspended" value={stats?.suspendedUsers ?? 0} color="text-red-500" />
                 <StatCard label="Total Documents" value={stats?.totalDocuments ?? 0} />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
                   <p className="text-[12px] font-medium text-[#64748B] uppercase tracking-wide mb-1">Total Storage Used</p>
                   <p className="text-[28px] font-bold text-[#1E293B]">{formatStorage(stats?.totalStorage ?? 0)}</p>
