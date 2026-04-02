@@ -66,7 +66,7 @@ const AdminLogin = () => {
             System administration access only.
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed">
-            This portal is restricted to authorised CloudDoc administrators. Unauthorised access attempts are logged.
+            This portal is restricted to authorised CloudDoc administrators.
           </p>
           <div className="flex flex-col gap-3 mt-2">
             {['User management', 'Storage analytics', 'System statistics'].map((item) => (
