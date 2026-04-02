@@ -5,6 +5,7 @@ import UploadModal from '../components/UploadModal';
 import EditModal from '../components/EditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import axiosInstance from '../axiosConfig';
+import SkeletonCard from '../components/SkeletonCard';
 
 const FILTERS = ['All', 'pdf', 'docx', 'xlsx', 'jpg', 'png'];
 const FILTER_LABELS = { All: 'All', pdf: 'PDF', docx: 'Word', xlsx: 'Excel', jpg: 'JPG', png: 'PNG' };
@@ -19,6 +20,7 @@ export default function AllDocuments() {
   const [editDoc, setEditDoc] = useState(null);
   const [deleteDoc, setDeleteDoc] = useState(null);
   const [error, setError] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchDocs = useCallback(async () => {
     setLoading(true);
@@ -62,13 +64,16 @@ export default function AllDocuments() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
         <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 gap-3 flex-shrink-0">
+          <button onClick={() => setSidebarOpen(true)} className="md:hidden -ml-1 mr-1 p-1 text-[#64748B]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <span className="text-[15px] font-bold text-[#1E293B]">All Documents</span>
-          <div className="flex-1 max-w-sm ml-2 relative">
+          <div className="hidden md:block flex-1 max-w-sm ml-2 relative">
             <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input
               type="text"
@@ -81,7 +86,7 @@ export default function AllDocuments() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="h-[34px] border border-[#E2E8F0] rounded-md px-2 text-[12px] text-[#1E293B] bg-white focus:outline-none"
+            className="hidden md:block h-[34px] border border-[#E2E8F0] rounded-md px-2 text-[12px] text-[#1E293B] bg-white focus:outline-none"
           >
             <option value="">Last updated</option>
             <option value="name">Name A–Z</option>
@@ -122,7 +127,9 @@ export default function AllDocuments() {
           </p>
 
           {loading ? (
-            <div className="text-sm text-[#64748B] py-10 text-center">Loading…</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
           ) : docs.length === 0 ? (
             <div className="flex flex-col items-center py-16 text-center">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" className="mb-3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -130,7 +137,7 @@ export default function AllDocuments() {
               <button onClick={() => setShowUpload(true)} className="mt-3 text-sm font-medium text-[#0F766E] underline">Upload your first document</button>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {docs.map((doc) => (
                 <DocumentCard
                   key={doc._id}
