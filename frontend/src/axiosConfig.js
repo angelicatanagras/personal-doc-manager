@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   // baseURL: 'http://localhost:5001',  //local development  
-  baseURL: 'https://3.25.193.25/', // live
+  baseURL: 'http://3.25.193.25/', // live
 });
 
 axiosInstance.interceptors.request.use((config) => {
