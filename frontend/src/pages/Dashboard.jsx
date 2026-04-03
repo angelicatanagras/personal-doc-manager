@@ -8,10 +8,12 @@ import EditModal from '../components/EditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import axiosInstance from '../axiosConfig';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/Toast';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [recentDocs, setRecentDocs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,15 +42,18 @@ export default function Dashboard() {
   const handleDelete = async () => {
     await axiosInstance.delete(`/api/documents/${deleteDoc._id}`);
     setRecentDocs((prev) => prev.filter((d) => d._id !== deleteDoc._id));
+    toast('Moved to trash', { message: `"${deleteDoc.name}" was moved to trash.`, type: 'success' });
     setDeleteDoc(null);
   };
 
   const handleUpdated = (updated) => {
     setRecentDocs((prev) => prev.map((d) => (d._id === updated._id ? updated : d)));
+    toast('Document updated', { message: `"${updated.name}" has been saved.`, type: 'success' });
   };
 
   const onUploaded = (doc) => {
     setRecentDocs((prev) => [doc, ...prev].slice(0, 6));
+    toast('Upload successful', { message: `"${doc.name}" has been uploaded.`, type: 'success' });
   };
 
   const handleZoneDrop = (e) => {

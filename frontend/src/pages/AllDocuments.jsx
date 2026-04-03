@@ -6,6 +6,7 @@ import EditModal from '../components/EditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import axiosInstance from '../axiosConfig';
 import SkeletonCard from '../components/SkeletonCard';
+import { useToast } from '../components/Toast';
 
 const FILTERS = ['All', 'pdf', 'docx', 'xlsx', 'jpg', 'png'];
 const FILTER_LABELS = { All: 'All', pdf: 'PDF', docx: 'Word', xlsx: 'Excel', jpg: 'JPG', png: 'PNG' };
@@ -21,6 +22,7 @@ export default function AllDocuments() {
   const [deleteDoc, setDeleteDoc] = useState(null);
   const [error, setError] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toast = useToast();
 
   const fetchDocs = useCallback(async () => {
     setLoading(true);
@@ -52,6 +54,7 @@ export default function AllDocuments() {
     try {
       await axiosInstance.delete(`/api/documents/${deleteDoc._id}`);
       setDocs((prev) => prev.filter((d) => d._id !== deleteDoc._id));
+      toast('Moved to trash', { message: `"${deleteDoc.name}" was moved to trash.`, type: 'success' });
       setDeleteDoc(null);
     } catch {
       setError('Failed to delete document.');
@@ -60,6 +63,7 @@ export default function AllDocuments() {
 
   const handleUpdated = (updated) => {
     setDocs((prev) => prev.map((d) => (d._id === updated._id ? updated : d)));
+    toast('Document updated', { message: `"${updated.name}" has been saved.`, type: 'success' });
   };
 
   return (

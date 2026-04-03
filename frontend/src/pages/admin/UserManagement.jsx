@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axiosInstance from '../../axiosConfig';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import { useToast } from '../../components/Toast';
 
 const formatStorage = (bytes) => {
   if (bytes >= 1073741824) return `${(bytes / 1073741824).toFixed(1)} GB`;
@@ -118,7 +119,8 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [formTarget, setFormTarget] = useState(undefined); // undefined=closed, null=create, object=edit
+  const [formTarget, setFormTarget] = useState(undefined);
+  const toast = useToast(); // undefined=closed, null=create, object=edit
 
   useEffect(() => {
     axiosInstance.get('/api/admin/users')
@@ -132,6 +134,7 @@ export default function UserManagement() {
     try {
       const { data } = await axiosInstance.put(`/api/admin/users/${u._id}/${endpoint}`);
       setUsers((prev) => prev.map((x) => x._id === u._id ? { ...x, status: data.user.status } : x));
+      toast(endpoint === 'suspend' ? 'User suspended' : 'User activated', { message: `"${u.name}" has been ${endpoint}d.`, type: endpoint === 'suspend' ? 'warning' : 'success' });
     } catch (err) {
       setError(err.response?.data?.message || 'Action failed.');
     }
@@ -141,6 +144,7 @@ export default function UserManagement() {
     try {
       await axiosInstance.delete(`/api/admin/users/${deleteTarget._id}`);
       setUsers((prev) => prev.filter((x) => x._id !== deleteTarget._id));
+      toast('User deleted', { message: `"${deleteTarget.name}" has been permanently deleted.`, type: 'error' });
       setDeleteTarget(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete user.');
@@ -151,8 +155,10 @@ export default function UserManagement() {
   const handleSaved = (savedUser, mode) => {
     if (mode === 'create') {
       setUsers((prev) => [{ ...savedUser, documentCount: 0 }, ...prev]);
+      toast('User created', { message: `"${savedUser.name}" has been added.`, type: 'success' });
     } else {
       setUsers((prev) => prev.map((x) => x._id === savedUser._id ? { ...x, ...savedUser } : x));
+      toast('User updated', { message: `"${savedUser.name}" has been updated.`, type: 'success' });
     }
   };
 
