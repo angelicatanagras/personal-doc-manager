@@ -2,7 +2,7 @@
 
 A web-based document manager where users can upload, organise, and track personal files. Built as a full-stack app with a React frontend, Node/Express backend, and MongoDB Atlas for storage.
 
-**Live:** http://[13.211.74.4](http://3.27.160.54/)
+**Live:** http://3.27.160.54/
 
 ---
 
@@ -121,6 +121,7 @@ All features merged into `main` via Pull Requests.
 | Admin | admin@admin.com | admin    |
 
 Login: http://3.27.160.54/login
+
 Admin: http://3.27.160.54/admin/login
 
 ---
