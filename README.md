@@ -2,7 +2,7 @@
 
 A web-based document manager where users can upload, organise, and track personal files. Built as a full-stack app with a React frontend, Node/Express backend, and MongoDB Atlas for storage.
 
-**Live:** http://13.211.74.4
+**Live:** http://[13.211.74.4](http://3.27.160.54/)
 
 ---
 
@@ -90,7 +90,7 @@ Secrets stored in GitHub → Settings → Secrets: `MONGO_URI`, `JWT_SECRET`, `P
 
 ## Deployment
 
-Live URL: `http://13.211.74.4`
+Live URL: `http://3.27.160.54/`
 
 Hosted on AWS EC2 (Ubuntu 22.04). Backend on port 5001, frontend served through Nginx on port 80, process management via PM2.
 
@@ -101,20 +101,15 @@ Hosted on AWS EC2 (Ubuntu 22.04). Backend on port 5001, frontend served through 
 | Branch          | Purpose                             |
 | --------------- | ----------------------------------- |
 | `main`          | Production-ready, merge via PR only |
-| `feature/epic*` | One branch per epic                 |
+| `feature/epic*` | One branch per epic feature         |
+| `ci/*`          | CI/CD configuration and fixes       |
+| `testing/*`     | Test updates                        |
 
-All features merged into `main` via Pull Requests with descriptive commit messages referencing story IDs.
+All features merged into `main` via Pull Requests.
 
-```
-feature/epic1-setup
-feature/epic2-auth
-feature/epic3-documents
-feature/epic4-folders
-feature/epic5-versions
-feature/epic6-search
-feature/epic7-dashboard
-feature/epic8-admin
-```
+**Implemented epics (merged):** Epic 1 (Setup), Epic 2 (Auth), Epic 3 (Documents), Epic 7 (Dashboard), Epic 8 (Admin)
+
+**Not yet fully implemented:** Epic 4 (Folders & Tags), Epic 5 (Version History), Epic 6 (Search & Filtering) — branches and PRs exist but features are incomplete.
 
 ---
 
@@ -125,9 +120,11 @@ feature/epic8-admin
 | User  | angel@angel.com | angel    |
 | Admin | admin@admin.com | admin    |
 
+Login: http://3.27.160.54/login
+Admin: http://3.27.160.54/admin/login
+
 ---
 
-## Assessment
+## Scope
 
-**Unit:** Software Life Cycle Management
-**Assessment:** Full-Stack CRUD Application with DevOps Practices
+Full-Stack CRUD Application with DevOps Practices using AWS EC2
