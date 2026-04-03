@@ -5,6 +5,7 @@ import EditModal from '../components/EditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import axiosInstance from '../axiosConfig';
 import SkeletonCard from '../components/SkeletonCard';
+import { useToast } from '../components/Toast';
 
 const CATEGORY_COLORS = {
   Identity: 'bg-blue-100 text-blue-700',
@@ -31,6 +32,7 @@ export default function Folders() {
   const [editDoc, setEditDoc] = useState(null);
   const [deleteDoc, setDeleteDoc] = useState(null);
   const [error, setError] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     fetchFolders();
@@ -70,6 +72,7 @@ export default function Folders() {
     try {
       const { data } = await axiosInstance.post('/api/folders', { name: newFolderName });
       setFolders((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      toast('Folder created', { message: `"${data.name}" has been created.`, type: 'success' });
       setNewFolderName('');
       setShowCreate(false);
     } catch (err) {
@@ -83,6 +86,7 @@ export default function Folders() {
       const { data } = await axiosInstance.put(`/api/folders/${renameFolder._id}`, { name: renameName });
       setFolders((prev) => prev.map((f) => (f._id === data._id ? data : f)));
       if (selectedFolder?._id === data._id) setSelectedFolder(data);
+      toast('Folder renamed', { message: `Folder renamed to "${data.name}".`, type: 'success' });
       setRenameFolder(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to rename folder');
@@ -97,6 +101,7 @@ export default function Folders() {
         setSelectedFolder(null);
         setFolderDocs([]);
       }
+      toast('Folder deleted', { message: `"${deleteFolder.name}" has been deleted.`, type: 'success' });
       setDeleteFolder(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete folder');
