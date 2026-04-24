@@ -47,8 +47,16 @@ npm run dev
 
 # Terminal 2 — Frontend (http://localhost:5173)
 cd frontend
+cp .env.example .env   # optional: set VITE_API_BASE_URL for non-local APIs
 npm install
 npm run dev
+```
+
+For local development, leave `VITE_API_BASE_URL` empty so Vite proxies `/api/*` to `http://localhost:5001`.
+If you want the frontend to use a deployed backend instead, set:
+
+```bash
+VITE_API_BASE_URL=http://your-api-host:5001
 ```
 
 ---
