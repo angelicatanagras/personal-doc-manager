@@ -26,6 +26,16 @@ const getFileType = (mimetype, originalname) => {
   return map[mimetype] || path.extname(originalname).replace('.', '').toLowerCase() || 'file';
 };
 
+const getDownloadName = (doc) => {
+  const trimmedName = (doc.name || '').trim();
+  const originalName = doc.originalName || '';
+  const extension = path.extname(originalName);
+
+  if (!trimmedName) return originalName || 'document';
+  if (extension && trimmedName.toLowerCase().endsWith(extension.toLowerCase())) return trimmedName;
+  return `${trimmedName}${extension}`;
+};
+
 // POST /api/documents
 const uploadDocument = async (req, res) => {
   try {
@@ -131,7 +141,11 @@ const updateDocument = async (req, res) => {
     if (!doc) return res.status(404).json({ message: 'Document not found' });
 
     const { name, folderId, tags, expiryDate } = req.body;
-    if (name !== undefined) doc.name = name;
+    if (name !== undefined) {
+      const trimmedName = String(name).trim();
+      if (!trimmedName) return res.status(400).json({ message: 'Document name is required' });
+      doc.name = trimmedName;
+    }
     if (folderId !== undefined) doc.folderId = folderId || null;
     if (tags !== undefined) doc.tags = tags;
     if (expiryDate !== undefined) {
@@ -197,7 +211,7 @@ const downloadDocument = async (req, res) => {
     const absPath = path.resolve(doc.filePath);
     if (!fs.existsSync(absPath)) return res.status(404).json({ message: 'File not found on disk' });
 
-    res.download(absPath, doc.originalName);
+    res.download(absPath, getDownloadName(doc));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

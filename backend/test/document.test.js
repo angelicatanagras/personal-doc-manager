@@ -245,6 +245,19 @@ describe('documentController — updateDocument', () => {
     expect(res.statusCode).to.equal(200);
     expect(doc.name).to.equal('Renamed');
   });
+
+  it('rejects blank document names when renaming', async () => {
+    const doc = makeDoc();
+    DocMock.findOne = async () => doc;
+    const req = mockReq({
+      user: { id: 'u1' }, params: { id: 'doc-id-1' },
+      body: { name: '   ' },
+    });
+    const res = mockRes();
+    await updateDocument(req, res);
+    expect(res.statusCode).to.equal(400);
+    expect(res.body.message).to.match(/document name is required/i);
+  });
 });
 
 // ─── deleteDocument (soft) ────────────────────────────────────────────────────
