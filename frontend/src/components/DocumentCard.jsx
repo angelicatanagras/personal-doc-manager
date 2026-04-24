@@ -33,13 +33,16 @@ const timeAgo = (date) => {
   return `${Math.floor(d / 30)}mo ago`;
 };
 
-export default function DocumentCard({ doc, onEdit, onDelete, onDownload }) {
+export default function DocumentCard({ doc, onOpen, onPreview, onEdit, onDelete, onDownload }) {
   const ext = doc.fileType || 'file';
   const style = FILE_STYLES[ext] || FILE_STYLES.txt;
   const status = STATUS_CONFIG[doc.status] || STATUS_CONFIG.stored;
 
   return (
-    <div className="group relative bg-white rounded-xl border border-[#E2E8F0] shadow-sm hover:shadow-md hover:border-[#CBD5E1] transition-all duration-200 overflow-hidden flex flex-col">
+    <div
+      className={`group relative bg-white rounded-xl border border-[#E2E8F0] shadow-sm hover:shadow-md hover:border-[#CBD5E1] transition-all duration-200 overflow-hidden flex flex-col ${onOpen ? 'cursor-pointer' : ''}`}
+      onClick={() => onOpen?.(doc)}
+    >
       {/* Left accent bar */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${style.accent} rounded-l-xl`} />
 
@@ -69,6 +72,13 @@ export default function DocumentCard({ doc, onEdit, onDelete, onDownload }) {
 
             {/* Action buttons — hidden at rest, shown on hover */}
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+              <button
+                onClick={(e) => { e.stopPropagation(); onPreview?.(doc); }}
+                title="Preview"
+                className="w-7 h-7 rounded-md bg-[#F1F5F9] hover:bg-teal-50 hover:text-[#0F766E] text-[#64748B] flex items-center justify-center transition-colors"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onDownload(doc); }}
                 title="Download"
