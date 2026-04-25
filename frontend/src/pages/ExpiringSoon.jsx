@@ -52,19 +52,19 @@ export default function ExpiringSoon() {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 gap-3 flex-shrink-0">
+        <header className="min-h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-4 sm:px-5 gap-3 flex-shrink-0 py-2">
           <button onClick={() => setSidebarOpen(true)} className="md:hidden -ml-1 mr-1 p-1 text-[#64748B]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
           <span className="text-[15px] font-bold text-[#1E293B]">Expiring Soon</span>
           {docs.length > 0 && (
-            <span className="bg-orange-100 text-orange-700 text-[11px] font-bold px-2 py-0.5 rounded-full">{docs.length}</span>
+            <span className="bg-orange-100 text-orange-700 text-[11px] font-bold px-2 py-0.5 rounded-full ml-auto md:ml-0">{docs.length}</span>
           )}
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 flex flex-col gap-5 sm:gap-6">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
               {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : docs.length === 0 ? (
@@ -79,12 +79,12 @@ export default function ExpiringSoon() {
             <>
               {expiring.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className="w-2 h-2 rounded-full bg-orange-400" />
                     <h2 className="text-[13px] font-bold text-[#1E293B]">Expiring within 30 days</h2>
                     <span className="text-[11px] text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full font-semibold">{expiring.length}</span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
                     {expiring.map((doc) => (
                       <DocumentCard key={doc._id} doc={doc} onOpen={(selectedDoc) => navigate(`/documents/${selectedDoc._id}`)} onEdit={setEditDoc} onDelete={setDeleteDoc} onDownload={handleDownload} />
                     ))}
@@ -94,12 +94,12 @@ export default function ExpiringSoon() {
 
               {expired.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className="w-2 h-2 rounded-full bg-red-400" />
                     <h2 className="text-[13px] font-bold text-[#1E293B]">Expired</h2>
                     <span className="text-[11px] text-red-600 bg-red-50 px-2 py-0.5 rounded-full font-semibold">{expired.length}</span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
                     {expired.map((doc) => (
                       <DocumentCard key={doc._id} doc={doc} onOpen={(selectedDoc) => navigate(`/documents/${selectedDoc._id}`)} onEdit={setEditDoc} onDelete={setDeleteDoc} onDownload={handleDownload} />
                     ))}
