@@ -6,9 +6,11 @@ import SkeletonCard from '../components/SkeletonCard';
 import UploadModal from '../components/UploadModal';
 import EditModal from '../components/EditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
+import DocumentPreviewModal from '../components/DocumentPreviewModal';
 import axiosInstance from '../axiosConfig';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { getDocumentDownloadName } from '../utils/documentName';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -18,6 +20,7 @@ export default function Dashboard() {
   const [recentDocs, setRecentDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState(null);
   const [editDoc, setEditDoc] = useState(null);
   const [deleteDoc, setDeleteDoc] = useState(null);
   const [dragging, setDragging] = useState(false);
@@ -35,7 +38,7 @@ export default function Dashboard() {
     const { data } = await axiosInstance.get(`/api/documents/${doc._id}/download`, { responseType: 'blob' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(data);
-    a.download = doc.originalName || doc.name;
+    a.download = getDocumentDownloadName(doc);
     a.click();
   };
 
@@ -156,11 +159,13 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {recentDocs.map((doc) => (
                   <DocumentCard
-                    key={doc._id}
-                    doc={doc}
-                    onEdit={setEditDoc}
-                    onDelete={setDeleteDoc}
-                    onDownload={handleDownload}
+                  key={doc._id}
+                  doc={doc}
+                  onOpen={(selectedDoc) => navigate(`/documents/${selectedDoc._id}`)}
+                  onPreview={setPreviewDoc}
+                  onEdit={setEditDoc}
+                  onDelete={setDeleteDoc}
+                  onDownload={handleDownload}
                   />
                 ))}
               </div>
@@ -169,6 +174,13 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {previewDoc && (
+        <DocumentPreviewModal
+          doc={previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          onDownload={handleDownload}
+        />
+      )}
       {showUpload && <UploadModal onClose={() => setShowUpload(false)} onUploaded={onUploaded} />}
       {editDoc && <EditModal doc={editDoc} onClose={() => setEditDoc(null)} onUpdated={handleUpdated} />}
       {deleteDoc && (

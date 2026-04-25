@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import DocumentCard from '../components/DocumentCard';
 import EditModal from '../components/EditModal';
@@ -6,6 +7,7 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import axiosInstance from '../axiosConfig';
 import SkeletonCard from '../components/SkeletonCard';
 import { useToast } from '../components/Toast';
+import { getDocumentDownloadName } from '../utils/documentName';
 
 const CATEGORY_COLORS = {
   Identity: 'bg-blue-100 text-blue-700',
@@ -17,6 +19,7 @@ const CATEGORY_COLORS = {
 };
 
 export default function Folders() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
@@ -112,7 +115,7 @@ export default function Folders() {
     const { data } = await axiosInstance.get(`/api/documents/${doc._id}/download`, { responseType: 'blob' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(data);
-    a.download = doc.originalName || doc.name;
+    a.download = getDocumentDownloadName(doc);
     a.click();
   };
 
@@ -226,6 +229,7 @@ export default function Folders() {
                       <DocumentCard
                         key={doc._id}
                         doc={doc}
+                        onOpen={(selectedDoc) => navigate(`/documents/${selectedDoc._id}`)}
                         onEdit={setEditDoc}
                         onDelete={setDeleteDoc}
                         onDownload={handleDownload}

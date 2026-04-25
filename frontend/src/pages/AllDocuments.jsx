@@ -1,23 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import DocumentCard from '../components/DocumentCard';
 import UploadModal from '../components/UploadModal';
 import EditModal from '../components/EditModal';
 import ConfirmDialog from '../components/ConfirmDialog';
+import DocumentPreviewModal from '../components/DocumentPreviewModal';
 import axiosInstance from '../axiosConfig';
 import SkeletonCard from '../components/SkeletonCard';
 import { useToast } from '../components/Toast';
+import { getDocumentDownloadName } from '../utils/documentName';
 
 const FILTERS = ['All', 'pdf', 'docx', 'xlsx', 'jpg', 'png'];
 const FILTER_LABELS = { All: 'All', pdf: 'PDF', docx: 'Word', xlsx: 'Excel', jpg: 'JPG', png: 'PNG' };
 
 export default function AllDocuments() {
+  const navigate = useNavigate();
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
   const [sort, setSort] = useState('');
   const [showUpload, setShowUpload] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState(null);
   const [editDoc, setEditDoc] = useState(null);
   const [deleteDoc, setDeleteDoc] = useState(null);
   const [error, setError] = useState('');
@@ -46,7 +51,7 @@ export default function AllDocuments() {
     const { data } = await axiosInstance.get(`/api/documents/${doc._id}/download`, { responseType: 'blob' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(data);
-    a.download = doc.originalName || doc.name;
+    a.download = getDocumentDownloadName(doc);
     a.click();
   };
 
@@ -146,6 +151,8 @@ export default function AllDocuments() {
                 <DocumentCard
                   key={doc._id}
                   doc={doc}
+                  onOpen={(selectedDoc) => navigate(`/documents/${selectedDoc._id}`)}
+                  onPreview={setPreviewDoc}
                   onEdit={setEditDoc}
                   onDelete={setDeleteDoc}
                   onDownload={handleDownload}
@@ -160,6 +167,13 @@ export default function AllDocuments() {
         <UploadModal
           onClose={() => setShowUpload(false)}
           onUploaded={(doc) => setDocs((prev) => [doc, ...prev])}
+        />
+      )}
+      {previewDoc && (
+        <DocumentPreviewModal
+          doc={previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          onDownload={handleDownload}
         />
       )}
       {editDoc && (

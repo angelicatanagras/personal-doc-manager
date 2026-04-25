@@ -17,10 +17,16 @@ export default function EditModal({ doc, onClose, onUpdated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setError('Document name is required.');
+      return;
+    }
     setSaving(true);
+    setError('');
     try {
       const { data } = await axiosInstance.put(`/api/documents/${doc._id}`, {
-        name,
+        name: trimmedName,
         expiryDate: expiryDate || null,
         folderId: folderId || null,
       });
@@ -53,6 +59,7 @@ export default function EditModal({ doc, onClose, onUpdated }) {
               required
               className="w-full py-2 px-3 border border-[#E2E8F0] rounded-lg text-sm focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/10"
             />
+            <p className="mt-1 text-[11px] text-[#94A3B8]">The file keeps its original type. Downloads will use the renamed document title.</p>
           </div>
           <div>
             <label className="block text-[13px] font-medium text-[#1E293B] mb-1.5">Folder <span className="text-[#94A3B8] font-normal">(optional)</span></label>

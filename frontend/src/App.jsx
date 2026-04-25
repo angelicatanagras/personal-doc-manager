@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AllDocuments from './pages/AllDocuments';
+import DocumentDetail from './pages/DocumentDetail';
 import Folders from './pages/Folders';
 import Tags from './pages/Tags';
 import ExpiringSoon from './pages/ExpiringSoon';
@@ -36,6 +37,7 @@ function AppRoutes() {
 
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/documents" element={<PrivateRoute><AllDocuments /></PrivateRoute>} />
+      <Route path="/documents/:id" element={<PrivateRoute><DocumentDetail /></PrivateRoute>} />
       <Route path="/folders" element={<PrivateRoute><Folders /></PrivateRoute>} />
       <Route path="/tags" element={<PrivateRoute><Tags /></PrivateRoute>} />
       <Route path="/expiring" element={<PrivateRoute><ExpiringSoon /></PrivateRoute>} />
