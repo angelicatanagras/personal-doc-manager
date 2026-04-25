@@ -135,7 +135,8 @@ export default function Folders() {
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 gap-3 flex-shrink-0">
+        <header className="border-b border-[#E2E8F0] bg-white px-4 py-3 md:h-[52px] md:px-5 md:py-0">
+          <div className="flex items-center gap-3">
           <button onClick={() => setSidebarOpen(true)} className="md:hidden -ml-1 mr-1 p-1 text-[#64748B]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
@@ -148,11 +149,12 @@ export default function Folders() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             New Folder
           </button>
+          </div>
         </header>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
           {/* Folder list */}
-          <div className="w-64 border-r border-[#E2E8F0] bg-white flex flex-col overflow-y-auto flex-shrink-0">
+          <div className="max-h-[220px] border-b border-[#E2E8F0] bg-white flex flex-col overflow-y-auto flex-shrink-0 lg:max-h-none lg:w-64 lg:border-b-0 lg:border-r">
             {error && <p className="text-xs text-red-500 px-4 pt-3">{error}</p>}
             {loading ? (
               <p className="text-sm text-[#64748B] p-4">Loading…</p>
@@ -186,7 +188,7 @@ export default function Folders() {
           </div>
 
           {/* Folder content */}
-          <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className="flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-5">
             {!selectedFolder ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" className="mb-3"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
@@ -194,13 +196,13 @@ export default function Folders() {
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-[16px] font-bold text-[#1E293B]">{selectedFolder.name}</h2>
                     <p className="text-[12px] text-[#64748B]">{folderDocs.length} document{folderDocs.length !== 1 ? 's' : ''}</p>
                   </div>
                   {!selectedFolder.isDefault && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => { setRenameFolder(selectedFolder); setRenameName(selectedFolder.name); }}
                         className="px-3 py-1.5 text-[12px] font-medium text-[#64748B] border border-[#E2E8F0] rounded-md hover:border-[#14B8A6] hover:text-[#0F766E] transition-colors"
@@ -218,13 +220,13 @@ export default function Folders() {
                 </div>
 
                 {docsLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
                     {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
                   </div>
                 ) : folderDocs.length === 0 ? (
                   <p className="text-sm text-[#64748B] py-10 text-center">No documents in this folder.</p>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
                     {folderDocs.map((doc) => (
                       <DocumentCard
                         key={doc._id}

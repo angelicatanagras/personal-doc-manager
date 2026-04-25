@@ -120,6 +120,7 @@ export default function UserManagement() {
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [formTarget, setFormTarget] = useState(undefined);
+  const [navOpen, setNavOpen] = useState(false);
   const toast = useToast(); // undefined=closed, null=create, object=edit
 
   useEffect(() => {
@@ -166,8 +167,9 @@ export default function UserManagement() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
+      {navOpen && <div className="fixed inset-0 z-20 bg-black/50 md:hidden" onClick={() => setNavOpen(false)} />}
       {/* Admin sidebar */}
-      <aside className="w-[210px] bg-[#1E293B] flex flex-col flex-shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-30 w-[210px] bg-[#1E293B] flex flex-col flex-shrink-0 transform transition-transform duration-200 md:relative md:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="px-5 py-4 border-b border-white/10">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
@@ -207,9 +209,13 @@ export default function UserManagement() {
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 gap-3 flex-shrink-0">
+        <header className="border-b border-[#E2E8F0] bg-white px-4 py-3 md:h-[52px] md:px-5 md:py-0">
+          <div className="flex items-center gap-3">
+          <button onClick={() => setNavOpen(true)} className="md:hidden p-1 text-[#64748B]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <span className="text-[15px] font-bold text-[#1E293B]">User Management</span>
-          <span className="text-[13px] text-[#64748B]">— {users.length} user{users.length !== 1 ? 's' : ''}</span>
+          <span className="hidden sm:inline text-[13px] text-[#64748B]">— {users.length} user{users.length !== 1 ? 's' : ''}</span>
           <div className="flex-1" />
           <button
             onClick={() => setFormTarget(null)}
@@ -218,9 +224,11 @@ export default function UserManagement() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             New User
           </button>
+          </div>
+          <p className="mt-2 text-[13px] text-[#64748B] sm:hidden">{users.length} user{users.length !== 1 ? 's' : ''}</p>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4 md:px-6">
           {error && <div className="mb-4 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>}
 
           {loading ? (
@@ -231,7 +239,8 @@ export default function UserManagement() {
               <button onClick={() => setFormTarget(null)} className="text-sm font-medium text-[#0F766E] hover:underline">Create the first user →</button>
             </div>
           ) : (
-            <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-x-auto">
+            <>
+            <div className="hidden md:block bg-white border border-[#E2E8F0] rounded-xl overflow-x-auto">
               <table className="w-full min-w-[640px] text-[13px]">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
@@ -311,6 +320,61 @@ export default function UserManagement() {
                 </tbody>
               </table>
             </div>
+            <div className="grid gap-3 md:hidden">
+              {users.map((u) => (
+                <div key={u._id} className="rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-[#1E293B] truncate">{u.name}</p>
+                      <p className="text-[12px] text-[#94A3B8] truncate">{u.email}</p>
+                    </div>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                      u.status === 'active'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-red-50 text-red-600 border border-red-200'
+                    }`}>
+                      {u.status === 'active' ? 'Active' : 'Suspended'}
+                    </span>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-semibold ${
+                      u.role === 'admin'
+                        ? 'bg-red-50 text-red-600 border border-red-200'
+                        : 'bg-slate-100 text-slate-600 border border-slate-200'
+                    }`}>
+                      {u.role === 'admin' ? 'Admin' : 'User'}
+                    </span>
+                    <span className="rounded-full border border-[#E2E8F0] px-2 py-0.5 text-[#64748B]">{u.documentCount} docs</span>
+                    <span className="rounded-full border border-[#E2E8F0] px-2 py-0.5 text-[#64748B]">{formatStorage(u.storageUsed)}</span>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setFormTarget(u)}
+                      className="rounded border border-[#E2E8F0] px-3 py-1.5 text-[12px] font-medium text-[#64748B] hover:bg-[#F1F5F9]"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleToggleStatus(u)}
+                      className={`rounded border px-3 py-1.5 text-[12px] font-medium ${
+                        u.status === 'active'
+                          ? 'text-amber-600 border-amber-200 hover:bg-amber-50'
+                          : 'text-emerald-600 border-emerald-200 hover:bg-emerald-50'
+                      }`}
+                    >
+                      {u.status === 'active' ? 'Suspend' : 'Activate'}
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget(u)}
+                      className="rounded border border-red-200 px-3 py-1.5 text-[12px] font-medium text-red-500 hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </>
           )}
         </div>
       </div>

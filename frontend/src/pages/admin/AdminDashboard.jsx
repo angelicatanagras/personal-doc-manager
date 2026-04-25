@@ -22,6 +22,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     axiosInstance.get('/api/admin/stats')
@@ -33,8 +34,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
+      {navOpen && <div className="fixed inset-0 z-20 bg-black/50 md:hidden" onClick={() => setNavOpen(false)} />}
       {/* Admin sidebar */}
-      <aside className="w-[210px] bg-[#1E293B] flex flex-col flex-shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-30 w-[210px] bg-[#1E293B] flex flex-col flex-shrink-0 transform transition-transform duration-200 md:relative md:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="px-5 py-4 border-b border-white/10">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
@@ -74,16 +76,19 @@ export default function AdminDashboard() {
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 flex-shrink-0">
+        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-4 md:px-5 flex-shrink-0 gap-3">
+          <button onClick={() => setNavOpen(true)} className="md:hidden p-1 text-[#64748B]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <span className="text-[15px] font-bold text-[#1E293B]">Admin Dashboard</span>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-5">
           {loading ? (
             <p className="text-sm text-[#64748B] py-10 text-center">Loading...</p>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                 <StatCard label="Total Users" value={stats?.totalUsers ?? 0} />
                 <StatCard label="Active Users" value={stats?.activeUsers ?? 0} color="text-emerald-600" />
                 <StatCard label="Suspended" value={stats?.suspendedUsers ?? 0} color="text-red-500" />

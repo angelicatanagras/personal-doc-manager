@@ -71,7 +71,7 @@ export default function Dashboard() {
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-5 gap-3 flex-shrink-0">
+        <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-4 sm:px-5 gap-3 flex-shrink-0">
           <button onClick={() => setSidebarOpen(true)} className="md:hidden -ml-1 mr-1 p-1 text-[#64748B]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
@@ -79,18 +79,18 @@ export default function Dashboard() {
           <div className="flex-1" />
           <button
             onClick={() => setShowUpload(true)}
-            className="flex items-center gap-1.5 h-[34px] px-3.5 bg-[#0F766E] text-white text-[13px] font-semibold rounded-md hover:bg-[#0d6460] transition-colors"
+            className="flex items-center gap-1.5 h-[34px] px-3 sm:px-3.5 bg-[#0F766E] text-white text-[13px] font-semibold rounded-md hover:bg-[#0d6460] transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Upload
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 flex flex-col gap-5 sm:gap-6">
           {/* Welcome */}
           <div>
-            <h1 className="text-[20px] font-bold text-[#1E293B]">Welcome back, {user?.name?.split(' ')[0] ?? 'there'} 👋</h1>
-            <p className="text-sm text-[#64748B] mt-0.5">Here's what's in your vault.</p>
+            <h1 className="text-[18px] sm:text-[20px] font-bold text-[#1E293B] leading-tight">Welcome back, {user?.name?.split(' ')[0] ?? 'there'} 👋</h1>
+            <p className="text-sm text-[#64748B] mt-0.5">Here&apos;s what&apos;s in your vault.</p>
           </div>
 
           {/* Drop zone */}
@@ -106,7 +106,7 @@ export default function Dashboard() {
                 : 'border-[#E2E8F0] hover:border-[#14B8A6] hover:bg-gradient-to-br hover:from-teal-50/60 hover:to-cyan-50/40'
             }`}
           >
-            <div className="flex flex-col items-center py-10 px-6 text-center">
+            <div className="flex flex-col items-center py-8 px-4 sm:py-10 sm:px-6 text-center">
               {/* Icon with background circle */}
               <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-colors ${
                 dragging ? 'bg-teal-100' : 'bg-[#F1F5F9] group-hover:bg-teal-100'
@@ -138,15 +138,15 @@ export default function Dashboard() {
           {/* Recent documents */}
           <div>
             {fetchError && <div className="mb-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{fetchError}</div>}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between gap-3 mb-3">
               <h2 className="text-[14px] font-bold text-[#1E293B]">Recent Documents</h2>
-              <button onClick={() => navigate('/documents')} className="text-xs text-[#0F766E] font-medium hover:underline">
+              <button onClick={() => navigate('/documents')} className="text-xs text-[#0F766E] font-medium hover:underline whitespace-nowrap">
                 View all →
               </button>
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
                 {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
               </div>
             ) : recentDocs.length === 0 ? (
@@ -156,7 +156,7 @@ export default function Dashboard() {
                 <button onClick={() => setShowUpload(true)} className="mt-2 text-xs text-[#0F766E] font-medium hover:underline">Upload your first file →</button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
                 {recentDocs.map((doc) => (
                   <DocumentCard
                   key={doc._id}
