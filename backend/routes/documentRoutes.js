@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
+const { validateDocumentUpdatePayload } = require('../middleware/validationMiddleware');
 const {
   uploadDocument,
   getDocuments,
@@ -23,7 +24,7 @@ router.route('/')
 
 router.route('/:id')
   .get(protect, getDocument)
-  .put(protect, updateDocument)
+  .put(protect, validateDocumentUpdatePayload, updateDocument)
   .delete(protect, deleteDocument);
 
 router.put('/:id/restore', protect, restoreDocument);
