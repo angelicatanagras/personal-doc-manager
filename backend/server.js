@@ -2,10 +2,13 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const registerAppListeners = require('./listeners/registerAppListeners');
 
 dotenv.config();
 
 const app = express();
+
+registerAppListeners();
 
 app.use(cors());
 app.use(express.json());
