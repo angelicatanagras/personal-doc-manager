@@ -1,20 +1,21 @@
 # CloudDoc Personal Document Manager
 
-CloudDoc is a full-stack personal document manager for uploading, organizing, previewing, and tracking important files. The app includes a React/Vite frontend, an Express API, MongoDB persistence, JWT authentication, role-based admin access, and local disk file storage.
+CloudDoc is a full-stack personal document manager for uploading, organizing, previewing, and tracking important files. It uses a React/Vite frontend, an Express API, MongoDB persistence, JWT authentication, role-based admin access, and local disk file storage.
 
-**Live app:** http://x.x.x.x:5173
+**Live app:** Deployment URL pending.
 
 ## Features
 
-- User registration and login with JWT authentication
+- User registration, login, and profile updates with JWT authentication
 - Role-based access for standard users and admins
-- Upload documents up to 50 MB
+- Document uploads up to 50 MB
 - Supported file types: PDF, JPG, PNG, DOCX, XLSX, and TXT
-- Document metadata: custom name, folder, tags, and expiry date
+- Document metadata for custom name, folder, tags, and expiry date
 - Expiry status tracking: `stored`, `valid`, `expiring`, and `expired`
-- Dashboard views for all documents, expiring documents, trash, folders, tags, and profile
+- Document list filtering by search term, file type, folder, and sort option
+- Dashboard, all documents, document detail, folders, tags, expiring soon, trash, and profile pages
 - Soft delete, restore, permanent delete, and download flows
-- Folder creation, rename, delete, and document move support
+- Folder create, rename, delete, and move-document support
 - Inline preview metadata for supported document types
 - Admin dashboard with user management and storage statistics
 
@@ -34,15 +35,19 @@ CloudDoc is a full-stack personal document manager for uploading, organizing, pr
 
 ```text
 backend/
-  adapters/          Storage adapter implementation
+  adapters/          File storage adapter
   config/            MongoDB connection
-  controllers/       HTTP request handlers
-  facades/           Higher-level document workflow facade
+  controllers/       HTTP request and response handlers
+  errors/            Shared HTTP error type
+  events/            Application event bus
+  facades/           Controller-facing workflow APIs
+  factories/         Document strategy factory
+  listeners/         App event listener registration
   middleware/        Auth, role, validation, and upload middleware
   models/            Mongoose schemas
   routes/            Express API routes
   services/          Business logic
-  strategies/        Document-type behavior
+  strategies/        Document-type-specific behavior
   test/              Backend tests
   uploads/           Local uploaded files
 
@@ -52,6 +57,25 @@ frontend/
     context/         Auth state
     pages/           App and admin pages
     utils/           Frontend helpers
+```
+
+## Architecture Notes
+
+The backend follows a layered structure:
+
+- Routes define API endpoints and middleware.
+- Controllers handle request and response flow.
+- Facades expose simplified workflow methods to controllers.
+- Services contain business logic.
+- Models define MongoDB persistence.
+- Strategies handle document-type-specific behavior.
+- Adapters isolate file storage behavior.
+- Events/listeners handle app-level side effects.
+
+The document flow currently uses:
+
+```text
+documentRoutes -> documentController -> DocumentFacade -> DocumentService -> Document model/storage
 ```
 
 ## Running Locally
@@ -71,7 +95,7 @@ npm install
 npm run dev
 ```
 
-The backend defaults to `http://localhost:5000` unless `PORT` is set. For local frontend proxying, set `PORT=5001` in `backend/.env` or update `frontend/vite.config.js`.
+Set `PORT=5001` in `backend/.env` for the current frontend proxy configuration. The backend defaults to port `5000` if `PORT` is not set.
 
 ### Frontend
 
@@ -82,15 +106,17 @@ npm install
 npm run dev
 ```
 
-The frontend runs on `http://localhost:5173`.
+Leave `VITE_API_BASE_URL` empty for local proxy-based development. The Vite dev server will print the local frontend URL in the terminal.
 
-For local development, leave `VITE_API_BASE_URL` empty so Vite can proxy `/api/*` requests. To point the frontend at a deployed API, set:
+To point the frontend at a deployed API, set:
 
 ```bash
 VITE_API_BASE_URL=http://your-api-host:5001
 ```
 
 ## Environment Variables
+
+Create your own MongoDB connection string in `backend/.env`; the app does not include a shared database.
 
 Create `backend/.env`:
 
@@ -108,16 +134,18 @@ VITE_API_BASE_URL=
 
 ## API Overview
 
-| Area      | Routes                                                                                                                                         |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth      | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/profile`, `PUT /api/auth/profile`                                            |
-| Documents | `GET /api/documents`, `POST /api/documents`, `GET /api/documents/:id`, `PUT /api/documents/:id`, `DELETE /api/documents/:id`                   |
-| Trash     | `GET /api/documents/trash`, `PUT /api/documents/:id/restore`, `DELETE /api/documents/:id/permanent`                                            |
-| Downloads | `GET /api/documents/:id/download`                                                                                                              |
-| Folders   | `GET /api/folders`, `POST /api/folders`, `PUT /api/folders/:id`, `DELETE /api/folders/:id`, `PUT /api/folders/:id/move-document`               |
-| Admin     | `GET /api/admin/stats`, `GET /api/admin/users`, `POST /api/admin/users`, `PUT /api/admin/users/:id`, suspend, activate, and delete user routes |
+| Area      | Routes                                                                                                                                                                                                      |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth      | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/profile`, `PUT /api/auth/profile`                                                                                                         |
+| Documents | `GET /api/documents`, `POST /api/documents`, `GET /api/documents/:id`, `PUT /api/documents/:id`, `DELETE /api/documents/:id`                                                                                |
+| Trash     | `GET /api/documents/trash`, `PUT /api/documents/:id/restore`, `DELETE /api/documents/:id/permanent`                                                                                                         |
+| Downloads | `GET /api/documents/:id/download`                                                                                                                                                                           |
+| Folders   | `GET /api/folders`, `POST /api/folders`, `PUT /api/folders/:id`, `DELETE /api/folders/:id`, `PUT /api/folders/:id/move-document`                                                                            |
+| Admin     | `GET /api/admin/stats`, `GET /api/admin/users`, `POST /api/admin/users`, `PUT /api/admin/users/:id`, `PUT /api/admin/users/:id/suspend`, `PUT /api/admin/users/:id/activate`, `DELETE /api/admin/users/:id` |
 
-`/api/versions` and `/api/search` currently return placeholder responses.
+`GET /api/documents` supports query parameters for `search`, `fileType`, `folderId`, and `sort`.
+
+`/api/versions` and `/api/search` are scaffolded routes that currently return placeholder responses.
 
 ## Running Tests
 
@@ -135,11 +163,21 @@ cd frontend
 npm run build
 ```
 
+## CI/CD
+
+The repository includes a GitHub Actions workflow at `.github/workflows/ci.yml` for installing dependencies, building the frontend, running backend tests, and restarting PM2-managed services on a self-hosted runner.
+
+Required GitHub Actions secrets:
+
+- `MONGO_URI`
+- `JWT_SECRET`
+- `PROD`
+
 ## Deployment Notes
 
 The app is designed for deployment on an Ubuntu EC2 instance with:
 
-- Nginx serving the frontend on port 80
+- Nginx serving the frontend
 - Express running as the backend API
 - PM2 managing the backend process
 - MongoDB Atlas used as the database
@@ -147,16 +185,17 @@ The app is designed for deployment on an Ubuntu EC2 instance with:
 
 Production deployments need `MONGO_URI`, `JWT_SECRET`, and a stable upload directory available to the backend process.
 
-## Test Credentials
+## Demo Credentials
+
+These credentials are intended for the deployed/demo database only.
 
 | Role  | Email             | Password |
 | ----- | ----------------- | -------- |
 | User  | `angel@angel.com` | `angel`  |
 | Admin | `admin@admin.com` | `admin`  |
 
-User login: http://3.27.160.54/login  
-Admin login: http://3.27.160.54/admin/login
-
 ## Current Scope
 
-CloudDoc is a full-stack CRUD application with authentication, document management, admin controls, and AWS deployment practices. Version history and standalone search endpoints are scaffolded but not complete.
+CloudDoc is a full-stack CRUD application with authentication, document management, folder support, admin controls, and AWS deployment practices.
+
+Version history and standalone `/api/search` behavior are scaffolded but not complete. Document listing already supports basic search and filtering through `/api/documents`.
