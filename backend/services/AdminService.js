@@ -21,7 +21,10 @@ class AdminService {
     const activeUsers = await this.userModel.countDocuments({ role: 'user', status: 'active' });
     const suspendedUsers = await this.userModel.countDocuments({ role: 'user', status: 'suspended' });
     const totalDocuments = await this.documentModel.countDocuments({ deletedAt: null });
-    const storageResult = await this.userModel.aggregate([{ $group: { _id: null, total: { $sum: '$storageUsed' } } }]);
+    const storageResult = await this.documentModel.aggregate([
+      { $match: { deletedAt: null } },
+      { $group: { _id: null, total: { $sum: '$size' } } }
+    ]);
 
     return {
       totalUsers,
@@ -52,15 +55,18 @@ class AdminService {
       throw new HttpError(400, 'Name, email and password are required');
     }
 
+    if (password.length < 6) {
+      throw new HttpError(400, 'Password must be minimum 6 characters');
+    }
+
     const normalizedEmail = email.toLowerCase();
     const existing = await this.userModel.findOne({ email: normalizedEmail });
     if (existing) throw new HttpError(409, 'Email already in use');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.userModel.create({
       name,
       email: normalizedEmail,
-      password: hashedPassword,
+      password: password,
       role: role === 'admin' ? 'admin' : 'user',
       status: 'active',
     });
