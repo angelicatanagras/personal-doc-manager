@@ -7,6 +7,7 @@ const {
   uploadDocument,
   getDocuments,
   getTrashedDocuments,
+  getRecentDocuments,
   getDocument,
   updateDocument,
   deleteDocument,
@@ -17,6 +18,7 @@ const {
 
 // /trash must come before /:id to avoid route conflict
 router.get('/trash', protect, getTrashedDocuments);
+router.get('/recent', protect, getRecentDocuments);
 
 router.route('/')
   .get(protect, getDocuments)
