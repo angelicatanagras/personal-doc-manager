@@ -78,6 +78,25 @@ The document flow currently uses:
 documentRoutes -> documentController -> DocumentFacade -> DocumentService -> Document model/storage
 ```
 
+## OOP and Design Patterns
+
+**OOP concepts applied:**
+
+- Classes and objects — service and error classes
+- Encapsulation — business logic contained within service methods
+- Abstraction — controllers call services without knowing implementation details
+- Composition — `DocumentService` is composed of an adapter, strategy, and event bus
+- Single Responsibility — controllers handle requests, services handle logic
+
+**Design patterns applied:**
+
+- **Chain of Responsibility** — Express middleware chain (auth → role → validation → controller)
+- **Strategy** — per-file-type processing classes (PDF, image, text, default)
+- **Simple Factory** — `documentStrategyFactory` selects the correct strategy at runtime
+- **Adapter** — `LocalStorageAdapter` wraps disk operations behind a standard interface
+- **Observer** — `appEventBus` emits events; listeners react independently
+- **Facade** — `DocumentFacade` gives controllers a single entry point to the document subsystem
+
 ## Running Locally
 
 ### Prerequisites
