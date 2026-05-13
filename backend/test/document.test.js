@@ -60,6 +60,7 @@ const makeDoc = (overrides = {}) => ({
 
 const DocMock = {
   findOne: async () => docFindOneResult,
+  findOneAndUpdate: () => DocMock.findOne(),
   find: () => ({
     populate: function () { return this; },
     sort: async () => docFindResult.map((d) => ({ ...d, toObject: () => d })),
