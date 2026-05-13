@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
 
@@ -47,7 +47,9 @@ export default function Sidebar({ isOpen = false, onClose }) {
     ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'U';
 
-  const handleLogout = () => {
+  const handleLogout = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     logout();
     navigate('/login');
   };
@@ -131,22 +133,31 @@ export default function Sidebar({ isOpen = false, onClose }) {
         <p className="mt-1 text-[11px] text-[#94A3B8]">{pct}% used</p>
       </div>
 
-      {/* User */}
-      <div className="flex items-center gap-2.5 px-4 py-3.5 border-t border-white/[0.06]">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0F766E] to-[#14B8A6] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-          {initials}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-[#F1F5F9] truncate">{user?.name ?? 'User'}</p>
-          <p className="text-[11px] text-[#94A3B8]">{user?.role === 'admin' ? 'Admin' : 'Personal account'}</p>
-        </div>
-        <button onClick={handleLogout} title="Logout" className="text-[#64748B] hover:text-[#94A3B8] transition-colors">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
+      {/* User — clickable, links to /profile */}
+      <div className="border-t border-white/[0.06]">
+        <Link
+          to="/profile"
+          className="flex items-center gap-2.5 px-4 py-3.5 hover:bg-white/5 transition-colors cursor-pointer group"
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0F766E] to-[#14B8A6] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold text-[#F1F5F9] truncate group-hover:text-white">{user?.name ?? 'User'}</p>
+            <p className="text-[11px] text-[#94A3B8]">{user?.role === 'admin' ? 'Admin' : 'Personal account'}</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            title="Logout"
+            className="text-[#64748B] hover:text-[#94A3B8] transition-colors flex-shrink-0"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </Link>
       </div>
       </aside>
     </>
