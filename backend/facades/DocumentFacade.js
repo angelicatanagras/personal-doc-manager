@@ -17,6 +17,10 @@ class DocumentFacade {
     return this.documentService.getTrashedDocuments(userId);
   }
 
+  listRecentDocuments(userId) {
+    return this.documentService.getRecentDocuments(userId);
+  }
+
   getDocument(documentId, userId) {
     return this.documentService.getDocument(documentId, userId);
   }

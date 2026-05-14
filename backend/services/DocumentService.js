@@ -107,6 +107,23 @@ class DocumentService {
     }));
   }
 
+  async getRecentDocuments(userId) {
+    const documents = await this.documentModel
+      .find({
+        userId,
+        deletedAt: null,
+        lastViewedAt: { $ne: null }
+      })
+      .sort({ lastViewedAt: -1 })
+      .limit(10)
+      .populate('folderId', 'name');
+
+    return documents.map((document) => ({
+      ...document.toObject(),
+      status: this.computeStatus(document.expiryDate),
+    }));
+  }
+
   async getTrashedDocuments(userId) {
     return this.documentModel
       .find({ userId, deletedAt: { $ne: null } })
@@ -115,8 +132,13 @@ class DocumentService {
   }
 
   async getDocument(documentId, userId) {
+
     const document = await this.documentModel
-      .findOne({ _id: documentId, userId })
+      .findOneAndUpdate(
+        { _id: documentId, userId },
+        { $set: { lastViewedAt: new Date() } },
+        { new: true }
+      )
       .populate('folderId', 'name')
       .populate('tags', 'name color');
 

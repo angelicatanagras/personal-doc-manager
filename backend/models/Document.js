@@ -19,8 +19,15 @@ const documentSchema = new mongoose.Schema(
     expiryDate: { type: Date, default: null },
     currentVersion: { type: Number, default: 1 },
     deletedAt: { type: Date, default: null }, // soft delete
+
+    lastViewedAt: {
+      type: Date,
+      default: null
+    }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
 
 module.exports = mongoose.model('Document', documentSchema);

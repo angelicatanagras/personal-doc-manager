@@ -18,6 +18,7 @@ export default function Dashboard() {
   const toast = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [recentDocs, setRecentDocs] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);
@@ -32,6 +33,10 @@ export default function Dashboard() {
       .then(({ data }) => setRecentDocs(data.slice(0, 6)))
       .catch((err) => setFetchError(err.response?.data?.message || err.message || 'Failed to load documents.'))
       .finally(() => setLoading(false));
+
+    axiosInstance.get('/api/documents/recent')
+      .then(({ data }) => setRecentlyViewed(data))
+      .catch(err => console.error("Failed to fetch recently viewed docs", err));
   }, []);
 
   const handleDownload = async (doc) => {
@@ -45,6 +50,7 @@ export default function Dashboard() {
   const handleDelete = async () => {
     await axiosInstance.delete(`/api/documents/${deleteDoc._id}`);
     setRecentDocs((prev) => prev.filter((d) => d._id !== deleteDoc._id));
+    setRecentlyViewed((prev) => prev.filter((d) => d._id !== deleteDoc._id));
     toast('Moved to trash', { message: `"${deleteDoc.name}" was moved to trash.`, type: 'success' });
     setDeleteDoc(null);
   };
@@ -73,7 +79,7 @@ export default function Dashboard() {
         {/* Topbar */}
         <header className="h-[52px] bg-white border-b border-[#E2E8F0] flex items-center px-4 sm:px-5 gap-3 flex-shrink-0">
           <button onClick={() => setSidebarOpen(true)} className="md:hidden -ml-1 mr-1 p-1 text-[#64748B]">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
           </button>
           <span className="text-[15px] font-bold text-[#1E293B]">Dashboard</span>
           <div className="flex-1" />
@@ -81,7 +87,7 @@ export default function Dashboard() {
             onClick={() => setShowUpload(true)}
             className="flex items-center gap-1.5 h-[34px] px-3 sm:px-3.5 bg-[#0F766E] text-white text-[13px] font-semibold rounded-md hover:bg-[#0d6460] transition-colors"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             Upload
           </button>
         </header>
@@ -93,6 +99,35 @@ export default function Dashboard() {
             <p className="text-sm text-[#64748B] mt-0.5">Here&apos;s what&apos;s in your vault.</p>
           </div>
 
+          {/* Recently Viewed  */}
+          {recentlyViewed.length > 0 && (
+            <div>
+              <h2 className="text-[14px] font-bold text-[#1E293B] mb-3">Recently Viewed</h2>
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {recentlyViewed.map((doc) => (
+                  <div
+                    key={`recent-${doc._id}`}
+                    className="min-w-[180px] bg-white border border-[#E2E8F0] p-4 rounded-xl shadow-sm hover:shadow-md hover:border-[#14B8A6] cursor-pointer transition-all"
+                    onClick={() => navigate(`/documents/${doc._id}`)}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">📄</span>
+                      <span className="text-[10px] font-bold text-white bg-[#0F766E] px-1.5 py-0.5 rounded uppercase tracking-wider">
+                        {doc.fileType}
+                      </span>
+                    </div>
+                    <p className="text-[13px] font-semibold text-[#1E293B] truncate mb-1">
+                      {doc.name}
+                    </p>
+                    <p className="text-[11px] text-[#94A3B8]">
+                      Opened: {new Date(doc.lastViewedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Drop zone */}
           <div
             ref={dropRef}
@@ -100,21 +135,19 @@ export default function Dashboard() {
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={handleZoneDrop}
-            className={`relative border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 overflow-hidden ${
-              dragging
-                ? 'border-[#0F766E] bg-gradient-to-br from-teal-50 to-cyan-50 shadow-inner'
-                : 'border-[#E2E8F0] hover:border-[#14B8A6] hover:bg-gradient-to-br hover:from-teal-50/60 hover:to-cyan-50/40'
-            }`}
+            className={`relative border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 overflow-hidden ${dragging
+              ? 'border-[#0F766E] bg-gradient-to-br from-teal-50 to-cyan-50 shadow-inner'
+              : 'border-[#E2E8F0] hover:border-[#14B8A6] hover:bg-gradient-to-br hover:from-teal-50/60 hover:to-cyan-50/40'
+              }`}
           >
             <div className="flex flex-col items-center py-8 px-4 sm:py-10 sm:px-6 text-center">
               {/* Icon with background circle */}
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-colors ${
-                dragging ? 'bg-teal-100' : 'bg-[#F1F5F9] group-hover:bg-teal-100'
-              }`}>
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-colors ${dragging ? 'bg-teal-100' : 'bg-[#F1F5F9] group-hover:bg-teal-100'
+                }`}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={dragging ? '#0F766E' : '#94A3B8'} strokeWidth="1.5" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
               </div>
 
@@ -151,7 +184,7 @@ export default function Dashboard() {
               </div>
             ) : recentDocs.length === 0 ? (
               <div className="py-12 text-center">
-                <svg className="mx-auto mb-3 text-[#CBD5E1]" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <svg className="mx-auto mb-3 text-[#CBD5E1]" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                 <p className="text-sm text-[#64748B]">No documents yet.</p>
                 <button onClick={() => setShowUpload(true)} className="mt-2 text-xs text-[#0F766E] font-medium hover:underline">Upload your first file →</button>
               </div>
@@ -159,13 +192,13 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-3">
                 {recentDocs.map((doc) => (
                   <DocumentCard
-                  key={doc._id}
-                  doc={doc}
-                  onOpen={(selectedDoc) => navigate(`/documents/${selectedDoc._id}`)}
-                  onPreview={setPreviewDoc}
-                  onEdit={setEditDoc}
-                  onDelete={setDeleteDoc}
-                  onDownload={handleDownload}
+                    key={doc._id}
+                    doc={doc}
+                    onOpen={(selectedDoc) => navigate(`/documents/${selectedDoc._id}`)}
+                    onPreview={setPreviewDoc}
+                    onEdit={setEditDoc}
+                    onDelete={setDeleteDoc}
+                    onDownload={handleDownload}
                   />
                 ))}
               </div>

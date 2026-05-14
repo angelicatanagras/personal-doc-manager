@@ -43,6 +43,15 @@ const getDocument = async (req, res) => {
   }
 };
 
+const getRecentDocuments = async (req, res) => {
+  try {
+    const docs = await documentFacade.listRecentDocuments(req.user.id);
+    res.json(docs);
+  } catch (error) {
+    handleControllerError(res, error);
+  }
+};
+
 // PUT /api/documents/:id
 const updateDocument = async (req, res) => {
   try {
@@ -107,4 +116,5 @@ module.exports = {
   restoreDocument,
   permanentDelete,
   downloadDocument,
+  getRecentDocuments,
 };
