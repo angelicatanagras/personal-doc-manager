@@ -1,0 +1,7 @@
+$kind: http-request
+name: Delete Document
+url: http://localhost:5001/api/documents/6a0ddc4006e494457edd356d
+method: DELETE
+headers:
+  Authorization: Bearer {{jwt_token}}
+order: 4503336997994118

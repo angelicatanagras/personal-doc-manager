@@ -1,0 +1,14 @@
+$kind: http-request
+name: Update Document
+url: http://localhost:5001/api/documents/6a0dc5a606e494457edd3522
+method: PUT
+headers:
+  Authorization: Bearer {{jwt_token}}
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"Updated_Document.jpg\"\r
+
+    }"
+order: 4500757104566394

@@ -1,0 +1,7 @@
+$kind: http-request
+name: Get Profile
+url: http://localhost:5001/api/auth/profile
+method: GET
+headers:
+  Authorization: Bearer {{jwt_token}}
+order: 4404349009915851

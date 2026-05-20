@@ -1,0 +1,17 @@
+$kind: http-request
+name: Upload Document
+url: http://localhost:5001/api/documents
+method: POST
+headers:
+  Authorization: Bearer {{jwt_token}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - /C:/Users/alexc/Downloads/max-vs-PjCh5goo-unsplash.JPG.jpg
+      contentType: image/jpeg
+      description: ""
+      disabled: false
+order: 4500315622003820
