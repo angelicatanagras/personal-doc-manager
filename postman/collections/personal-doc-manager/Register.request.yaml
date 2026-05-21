@@ -1,0 +1,44 @@
+$kind: http-request
+name: Register
+url: http://localhost:5001/api/auth/register
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"Angel A\",\r
+
+    \  \"email\": \"Angel@gmail.com\",\r
+
+    \  \"password\": \"A123\" \r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: "let response = pm.response.json();\r
+
+      // Basic test\r
+
+      pm.test(\"Status code is 201 (Created)\", function () {\r
+
+      pm.response.to.have.status(201);\r
+
+      });\r
+
+      pm.test(\"Content-Type is present\", function () {\r
+
+      pm.response.to.have.header(\"Content-Type\");\r
+
+      });\r
+
+      // Save JWT if returned\r
+
+      if (response.token) {\r
+
+      pm.environment.set(\"jwt_token\", response.token);\r
+
+      console.log(\"JWT Token saved from registration response\");\r
+
+      }"
+    language: text/javascript
+order: 1000

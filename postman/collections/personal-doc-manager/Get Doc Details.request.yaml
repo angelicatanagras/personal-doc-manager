@@ -1,0 +1,7 @@
+$kind: http-request
+name: Get Doc Details
+url: http://localhost:5001/api/documents/6a0dc5a606e494457edd3522
+method: GET
+headers:
+  Authorization: Bearer {{jwt_token}}
+order: 4499015010931572

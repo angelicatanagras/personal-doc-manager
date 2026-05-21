@@ -1,0 +1,7 @@
+$kind: http-request
+name: Get Document
+url: http://localhost:5001/api/documents
+method: GET
+headers:
+  Authorization: Bearer {{jwt_token}}
+order: 4476496476663121

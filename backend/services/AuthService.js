@@ -26,6 +26,10 @@ class AuthService {
     const userExists = await this.userModel.findOne({ email });
     if (userExists) throw new HttpError(400, 'User already exists');
 
+    if (password.length < 6) {
+      throw new HttpError(400, 'Password must be minimum 6 characters');
+    }
+
     const user = await this.userModel.create({ name, email, password });
     return this.buildAuthPayload(user);
   }

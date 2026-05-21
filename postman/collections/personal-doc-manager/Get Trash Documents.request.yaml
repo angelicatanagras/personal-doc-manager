@@ -1,0 +1,7 @@
+$kind: http-request
+name: Get Trash Documents
+url: http://localhost:5001/api/documents/trash
+method: GET
+headers:
+  Authorization: Bearer {{jwt_token}}
+order: 4503533730146300

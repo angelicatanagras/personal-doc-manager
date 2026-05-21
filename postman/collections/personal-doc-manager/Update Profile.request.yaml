@@ -1,0 +1,14 @@
+$kind: http-request
+name: Update Profile
+url: http://localhost:5001/api/auth/profile
+method: PUT
+headers:
+  Authorization: Bearer {{jwt_token}}
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"naha@naha.com\"\r
+
+    }"
+order: 4435033348279261
