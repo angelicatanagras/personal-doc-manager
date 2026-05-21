@@ -1,0 +1,17 @@
+$kind: http-request
+name: Admin Get Users
+url: http://localhost:5001/api/admin/users
+method: GET
+headers:
+  Authorization: Bearer {{jwt_token}}
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+\n      pm.response.to.have.status(200);\r
+\n      });\r
+\n      pm.test(\"Response is an array\", function () {\r
+\n      const data = pm.response.json();\r
+\n      pm.expect(data).to.be.an(\"array\");\r
+\n      });"
+    language: text/javascript
+order: 4505000000000002

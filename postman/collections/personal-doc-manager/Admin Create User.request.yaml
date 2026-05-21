@@ -1,0 +1,16 @@
+$kind: http-request
+name: Admin Create User
+url: http://localhost:5001/api/admin/users
+method: POST
+headers:
+  Authorization: Bearer {{jwt_token}}
+body:
+  type: json
+  content: "{\r\n  \"name\": \"Test User\",\r\n  \"email\": \"testuser@example.com\",\r\n  \"password\": \"Test123456\",\r\n  \"role\": \"user\"\r\n}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 201\", function () {\r
+\n      pm.response.to.have.status(201);\r
+\n      });"
+    language: text/javascript
+order: 4505000000000003
