@@ -58,13 +58,28 @@ const makeDoc = (overrides = {}) => ({
   ...overrides,
 });
 
+// makeChain returns a fully chainable thenable — works regardless of which
+// method is the last one awaited (sort, populate, limit, etc.)
+const makeChain = () => {
+  const results = () => docFindResult.map((d) => ({ ...d, toObject: () => d }));
+  const chain = {
+    populate: function () { return this; },
+    sort: function () { return this; },
+    limit: function () { return this; },
+    then: function (resolve, reject) {
+      return Promise.resolve(results()).then(resolve, reject);
+    },
+    catch: function (reject) {
+      return Promise.resolve(results()).catch(reject);
+    },
+  };
+  return chain;
+};
+
 const DocMock = {
   findOne: async () => docFindOneResult,
   findOneAndUpdate: () => DocMock.findOne(),
-  find: () => ({
-    populate: function () { return this; },
-    sort: async () => docFindResult.map((d) => ({ ...d, toObject: () => d })),
-  }),
+  find: () => makeChain(),
   create: async (data) => makeDoc(data),
 };
 
@@ -83,10 +98,12 @@ const {
   getDocuments,
   getTrashedDocuments,
   getDocument,
+  getRecentDocuments,
   updateDocument,
   deleteDocument,
   restoreDocument,
   permanentDelete,
+  downloadDocument,
 } = require('../controllers/documentController');
 
 // ─── computeStatus ────────────────────────────────────────────────────────────
@@ -323,5 +340,57 @@ describe('documentController — permanentDelete', () => {
     await permanentDelete(req, res);
     expect(res.statusCode).to.equal(200);
     expect(res.body.message).to.match(/permanently deleted/i);
+  });
+});
+
+// ─── getRecentDocuments ───────────────────────────────────────────────────────
+describe('documentController — getRecentDocuments', () => {
+  it('returns a list of recently viewed documents', async () => {
+    docFindResult = [
+      makeDoc({ name: 'report.pdf', lastViewedAt: new Date() }),
+      makeDoc({ _id: 'doc-id-2', name: 'notes.txt', lastViewedAt: new Date() }),
+    ];
+    const req = mockReq({ user: { id: 'user-id-1' } });
+    const res = mockRes();
+    await getRecentDocuments(req, res);
+    expect(res.statusCode).to.equal(200);
+    expect(res.body).to.be.an('array').with.lengthOf(2);
+  });
+
+  it('returns an empty array when no recent documents exist', async () => {
+    docFindResult = [];
+    const req = mockReq({ user: { id: 'user-id-1' } });
+    const res = mockRes();
+    await getRecentDocuments(req, res);
+    expect(res.statusCode).to.equal(200);
+    expect(res.body).to.be.an('array').with.lengthOf(0);
+  });
+});
+
+// ─── downloadDocument ─────────────────────────────────────────────────────────
+describe('documentController — downloadDocument', () => {
+  it('returns 404 when document is not found', async () => {
+    DocMock.findOne = () => mockQuery(null);
+    const req = mockReq({ user: { id: 'user-id-1' }, params: { id: 'missing-id' } });
+    const res = mockRes();
+    await downloadDocument(req, res);
+    expect(res.statusCode).to.equal(404);
+    expect(res.body.message).to.match(/not found/i);
+  });
+
+  it('initiates file download when document exists on disk', async () => {
+    const fs = require('fs');
+    const os = require('os');
+    const tmpFile = require('path').join(os.tmpdir(), `clouddoc-dl-test-${Date.now()}.pdf`);
+    fs.writeFileSync(tmpFile, 'dummy pdf content');
+
+    DocMock.findOne = () => mockQuery(makeDoc({ filePath: tmpFile, originalName: 'test.pdf' }));
+    const req = mockReq({ user: { id: 'user-id-1' }, params: { id: 'doc-id-1' } });
+    const res = mockRes();
+    await downloadDocument(req, res);
+    expect(res.downloadPath).to.be.a('string');
+    expect(res.downloadName).to.be.a('string');
+
+    fs.unlinkSync(tmpFile);
   });
 });
