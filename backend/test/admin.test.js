@@ -22,12 +22,16 @@ const makeUser = (overrides = {}) => ({
   ...overrides,
 });
 
+let userFindOneResult = null;
+
 const UserMock = {
   findById: async () => userFindByIdResult,
+  findOne: async () => userFindOneResult,
   find: () => ({
     select: function () { return this; },
     sort: async () => userFindResult,
   }),
+  create: async (data) => makeUser(data),
   countDocuments: async () => 0,
   aggregate: async () => [{ total: 0 }],
 };
@@ -42,7 +46,7 @@ injectMock('../models/User', UserMock);
 injectMock('../models/Document', DocMock);
 clearMock('../controllers/adminController');
 
-const { getStats, getUsers, suspendUser, activateUser, deleteUser } = require('../controllers/adminController');
+const { getStats, getUsers, createUser, updateUser, suspendUser, activateUser, deleteUser } = require('../controllers/adminController');
 const { adminOnly } = require('../middleware/roleMiddleware');
 
 // ─── roleMiddleware — adminOnly ───────────────────────────────────────────────
@@ -201,5 +205,90 @@ describe('adminController — deleteUser', () => {
     await deleteUser(req, res);
     expect(res.statusCode).to.equal(200);
     expect(res.body.message).to.match(/deleted/i);
+  });
+});
+
+// ─── createUser ───────────────────────────────────────────────────────────────
+describe('adminController — createUser', () => {
+  beforeEach(() => { userFindOneResult = null; });
+
+  it('returns 201 and the new user on success', async () => {
+    const req = mockReq({
+      user: { id: 'admin-1', role: 'admin' },
+      body: { name: 'New User', email: 'newuser@test.com', password: 'password123' },
+    });
+    const res = mockRes();
+    await createUser(req, res);
+    expect(res.statusCode).to.equal(201);
+  });
+
+  it('returns 409 when email is already in use', async () => {
+    userFindOneResult = makeUser({ email: 'existing@test.com' });
+    const req = mockReq({
+      user: { id: 'admin-1', role: 'admin' },
+      body: { name: 'User', email: 'existing@test.com', password: 'password123' },
+    });
+    const res = mockRes();
+    await createUser(req, res);
+    expect(res.statusCode).to.equal(409);
+    expect(res.body.message).to.match(/already in use/i);
+  });
+
+  it('returns 400 when password is shorter than 6 characters', async () => {
+    const req = mockReq({
+      user: { id: 'admin-1', role: 'admin' },
+      body: { name: 'User', email: 'short@test.com', password: '123' },
+    });
+    const res = mockRes();
+    await createUser(req, res);
+    expect(res.statusCode).to.equal(400);
+    expect(res.body.message).to.match(/minimum 6 characters/i);
+  });
+});
+
+// ─── updateUser ───────────────────────────────────────────────────────────────
+describe('adminController — updateUser', () => {
+  beforeEach(() => {
+    userFindByIdResult = null;
+    userFindOneResult = null;
+  });
+
+  it('returns 404 when user is not found', async () => {
+    userFindByIdResult = null;
+    const req = mockReq({
+      user: { id: 'admin-1', role: 'admin' },
+      params: { id: 'nonexistent-id' },
+      body: { name: 'New Name' },
+    });
+    const res = mockRes();
+    await updateUser(req, res);
+    expect(res.statusCode).to.equal(404);
+    expect(res.body.message).to.match(/not found/i);
+  });
+
+  it('updates the user name and returns the updated user', async () => {
+    userFindByIdResult = makeUser();
+    const req = mockReq({
+      user: { id: 'admin-1', role: 'admin' },
+      params: { id: 'user-id-1' },
+      body: { name: 'Updated Name' },
+    });
+    const res = mockRes();
+    await updateUser(req, res);
+    expect(res.statusCode).to.equal(200);
+  });
+
+  it('returns 409 when updated email is already taken by another user', async () => {
+    userFindByIdResult = makeUser({ _id: 'user-id-1' });
+    userFindOneResult = makeUser({ _id: 'other-user-id', email: 'taken@test.com' });
+    const req = mockReq({
+      user: { id: 'admin-1', role: 'admin' },
+      params: { id: 'user-id-1' },
+      body: { email: 'taken@test.com' },
+    });
+    const res = mockRes();
+    await updateUser(req, res);
+    expect(res.statusCode).to.equal(409);
+    expect(res.body.message).to.match(/already in use/i);
   });
 });
