@@ -1,0 +1,16 @@
+$kind: http-request
+name: Admin Update User
+url: http://localhost:5001/api/admin/users/000000000000000000000000
+method: PUT
+headers:
+  Authorization: Bearer {{jwt_token}}
+body:
+  type: json
+  content: "{\r\n  \"name\": \"Updated Test User\",\r\n  \"role\": \"user\"\r\n}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+\n      pm.response.to.have.status(200);\r
+\n      });"
+    language: text/javascript
+order: 4505000000000004

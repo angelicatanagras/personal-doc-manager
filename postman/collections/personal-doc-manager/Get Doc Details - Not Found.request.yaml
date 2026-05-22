@@ -1,0 +1,16 @@
+$kind: http-request
+name: Get Doc Details - Not Found
+url: http://localhost:5001/api/documents/000000000000000000000000
+method: GET
+headers:
+  Authorization: Bearer {{jwt_token}}
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 404\", function () {\r
+\n      pm.response.to.have.status(404);\r
+\n      });\r
+\n      pm.test(\"Returns not found message\", function () {\r
+\n      pm.expect(pm.response.text()).to.include(\"not found\");\r
+\n      });"
+    language: text/javascript
+order: 4504000000000007

@@ -1,0 +1,11 @@
+$kind: http-request
+name: Get Recent Viewed - Unauthorized
+url: http://localhost:5001/api/documents/recent
+method: GET
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 401\", function () {\r
+\n      pm.response.to.have.status(401);\r
+\n      });"
+    language: text/javascript
+order: 4504000000000004

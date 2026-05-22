@@ -1,0 +1,16 @@
+$kind: http-request
+name: Admin Stats - Forbidden
+url: http://localhost:5001/api/admin/stats
+method: GET
+headers:
+  Authorization: Bearer {{jwt_token}}
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 403\", function () {\r
+\n      pm.response.to.have.status(403);\r
+\n      });\r
+\n      pm.test(\"Returns forbidden message\", function () {\r
+\n      pm.expect(pm.response.text()).to.include(\"Admin\");\r
+\n      });"
+    language: text/javascript
+order: 4504000000000015

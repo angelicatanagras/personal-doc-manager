@@ -1,0 +1,19 @@
+$kind: http-request
+name: Upload Document - No File
+url: http://localhost:5001/api/documents
+method: POST
+headers:
+  Authorization: Bearer {{jwt_token}}
+body:
+  type: formdata
+  content:
+    - type: text
+      key: name
+      value: test-doc
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 400\", function () {\r
+\n      pm.response.to.have.status(400);\r
+\n      });"
+    language: text/javascript
+order: 4504000000000008

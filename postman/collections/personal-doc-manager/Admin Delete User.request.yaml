@@ -1,0 +1,13 @@
+$kind: http-request
+name: Admin Delete User
+url: http://localhost:5001/api/admin/users/000000000000000000000000
+method: DELETE
+headers:
+  Authorization: Bearer {{jwt_token}}
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+\n      pm.response.to.have.status(200);\r
+\n      });"
+    language: text/javascript
+order: 4505000000000005
