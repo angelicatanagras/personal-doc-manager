@@ -20,6 +20,10 @@ app.use('/api/versions', require('./routes/versionRoutes'));
 app.use('/api/search', require('./routes/searchRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 
+app.get('/', (req, res) => {
+  res.send(`<h1>Welcome to Personal Doc Manager - Server Instance: ${process.env.INSTANCE_NAME || 'Unknown'}</h1>`);
+});
+
 if (require.main === module) {
   connectDB();
   const PORT = process.env.PORT || 5000;
