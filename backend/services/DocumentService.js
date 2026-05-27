@@ -54,23 +54,26 @@ class DocumentService {
     return document;
   }
 
+  async checkNameAvailability(userId, name) {
+    const existing = await this.documentModel.findOne({ userId, name, deletedAt: null });
+    return { exists: !!existing };
+  }
+
   async uploadDocument({ userId, file, body }) {
     if (!file) throw new HttpError(400, 'No file uploaded');
 
-    const existing = await this.documentModel.findOne({
-      userId,
-      originalName: file.originalname,
-      deletedAt: null,
-    });
+    const ext = require('path').extname(file.originalname);
+    const displayName = body.name || file.originalname.slice(0, file.originalname.length - ext.length);
 
+    const existing = await this.documentModel.findOne({ userId, name: displayName, deletedAt: null });
     if (existing) {
       this.storageAdapter.remove(file.path);
-      throw new HttpError(409, `A document named "${file.originalname}" already exists. Rename the file or delete the existing one first.`);
+      throw new HttpError(409, `A document named "${displayName}" already exists. Please rename it before uploading.`);
     }
 
     const document = await this.documentModel.create({
       userId,
-      name: body.name || file.originalname,
+      name: displayName,
       originalName: file.originalname,
       fileType: this.getFileType(file.mimetype, file.originalname),
       mimeType: file.mimetype,

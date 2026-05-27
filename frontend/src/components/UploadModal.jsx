@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axiosInstance from '../axiosConfig';
 
 const TAGS = ['Identity', 'Government', 'Travel', 'Finance', 'Health', 'Work', 'Legal', 'Property'];
@@ -11,7 +11,19 @@ export default function UploadModal({ onClose, onUploaded }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [nameError, setNameError] = useState('');
   const inputRef = useRef();
+
+  useEffect(() => {
+    if (!name) { setNameError(''); return; }
+    const timer = setTimeout(async () => {
+      try {
+        const { data } = await axiosInstance.get('/api/documents/check-name', { params: { name } });
+        setNameError(data.exists ? `A document named "${name}" already exists. Please choose a different name.` : '');
+      } catch (_) {}
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [name]);
 
   const handleFile = (f) => {
     setFile(f);
@@ -68,6 +80,9 @@ export default function UploadModal({ onClose, onUploaded }) {
           {error && (
             <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>
           )}
+          {nameError && (
+            <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{nameError}</div>
+          )}
 
           {/* Drop zone */}
           <div
@@ -109,6 +124,7 @@ export default function UploadModal({ onClose, onUploaded }) {
             <input
               type="date"
               value={expiryDate}
+              min={new Date().toISOString().split('T')[0]}
               onChange={(e) => setExpiryDate(e.target.value)}
               className="w-full py-2 px-3 border border-[#E2E8F0] rounded-lg text-sm text-[#1E293B] focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/10"
             />
@@ -146,7 +162,7 @@ export default function UploadModal({ onClose, onUploaded }) {
             </button>
             <button
               type="submit"
-              disabled={uploading}
+              disabled={uploading || !!nameError}
               className="flex-1 py-2.5 bg-[#0F766E] text-white text-sm font-semibold rounded-lg hover:bg-[#0d6460] disabled:opacity-60 transition-colors"
             >
               {uploading ? 'Uploading...' : 'Save Document'}
