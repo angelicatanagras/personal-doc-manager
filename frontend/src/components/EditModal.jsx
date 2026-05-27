@@ -79,6 +79,7 @@ export default function EditModal({ doc, onClose, onUpdated }) {
             <input
               type="date"
               value={expiryDate}
+              min={new Date().toISOString().split('T')[0]}
               onChange={(e) => setExpiryDate(e.target.value)}
               className="w-full py-2 px-3 border border-[#E2E8F0] rounded-lg text-sm focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/10"
             />

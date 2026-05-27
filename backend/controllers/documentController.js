@@ -13,6 +13,17 @@ const uploadDocument = async (req, res) => {
   }
 };
 
+// GET /api/documents/check-name?name=<display name>
+const checkName = async (req, res) => {
+  try {
+    if (!req.query.name) return res.json({ exists: false });
+    const result = await documentFacade.checkNameAvailability(req.user.id, req.query.name);
+    res.json(result);
+  } catch (error) {
+    handleControllerError(res, error);
+  }
+};
+
 // GET /api/documents
 const getDocuments = async (req, res) => {
   try {
@@ -108,6 +119,7 @@ const downloadDocument = async (req, res) => {
 
 module.exports = {
   uploadDocument,
+  checkName,
   getDocuments,
   getTrashedDocuments,
   getDocument,

@@ -5,6 +5,10 @@ class DocumentFacade {
     this.documentService = documentService;
   }
 
+  checkNameAvailability(userId, name) {
+    return this.documentService.checkNameAvailability(userId, name);
+  }
+
   uploadDocument(payload) {
     return this.documentService.uploadDocument(payload);
   }

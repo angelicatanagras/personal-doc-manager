@@ -5,6 +5,7 @@ const upload = require('../middleware/uploadMiddleware');
 const { validateDocumentUpdatePayload } = require('../middleware/validationMiddleware');
 const {
   uploadDocument,
+  checkName,
   getDocuments,
   getTrashedDocuments,
   getRecentDocuments,
@@ -16,9 +17,10 @@ const {
   downloadDocument,
 } = require('../controllers/documentController');
 
-// /trash must come before /:id to avoid route conflict
+// Static routes must come before /:id to avoid route conflicts
 router.get('/trash', protect, getTrashedDocuments);
 router.get('/recent', protect, getRecentDocuments);
+router.get('/check-name', protect, checkName);
 
 router.route('/')
   .get(protect, getDocuments)
