@@ -24,11 +24,12 @@ const NAV = [
 ];
 
 export default function Sidebar({ isOpen = false, onClose }) {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [alertCount, setAlertCount] = useState(0);
 
   useEffect(() => {
+    refreshUser();
     axiosInstance.get('/api/documents')
       .then(({ data }) => {
         const count = data.filter((d) => d.status === 'expiring' || d.status === 'expired').length;

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import axiosInstance from '../axiosConfig';
 
 const AuthContext = createContext();
 
@@ -20,8 +21,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      const { data } = await axiosInstance.get('/api/auth/profile');
+      const updated = { ...user, ...data };
+      localStorage.setItem('user', JSON.stringify(updated));
+      setUser(updated);
+    } catch (_) {}
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
